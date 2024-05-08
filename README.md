@@ -53,5 +53,3 @@ ThingSpeak is an IoT analytics platform service that allows you to aggregate, vi
 - ESP8266WiFi library
 - WiFiClient library
 - ThingSpeak library
-
-.
