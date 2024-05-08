@@ -1,3 +1,42 @@
-/ First include all the required libraries. // #include <ESP8266WiFi.h>; #include <WiFiClient.h>; #include <ThingSpeak.h>; // Replace SSID and password given in code with you Wi-Fi SSID and password. // const char* ssid = "Beast Gogeta"; const char* password = "instagram"; WiFiClient client; // Copy channel number, read and write API keys from ThingSpeak as shown above. // unsigned long myChannelNumber = 2285389; const char * myWriteAPIKey = "XCZL7HQUFCL9FRDR"; const char * myReadAPIKey = "LJ24LIGM1ARTNVPL"; // Defin e variable for GPIO pins of leds and IR sensors, ADC channel. // int led_1; int ir1 = D7; 7 
-int led1 = D3; void setup() { Serial.begin(9600); // Set the pinMode for pins of led and IR sensor on the NodeMCU. // pinMode(ir1,INPUT); pinMode(led1,OUTPUT); // Initialization of Wi-Fi and ThingSpeak. // WiFi.begin(ssid, password); ThingSpeak.begin(client); } void loop() { // Now we take digital value of the IR sensors and analog value of LDR sensor and store them in variables.// int s1 = digitalRead(ir1); Serial.print(s1); Serial.print(":"); if(s1==0) {digitalWrite(led1,LOW);}else{digitalWrite(led1,HIGH);} 8 
-//Finally upload the data on the ThingSpeak cloud by using function ThingSpeak.writeField(). It take channel number, fie ld number, data (you want to upload in respective fie ld) and write API key. Here we are uploading LDR sensor data, IR sensors data and LEDs data to the ThingSpeak cloud.// ThingSpeak.writeField(myChannelNumber, 2,s1, myWriteAPIKey); ThingSpeak.writeField(myChannelNumber, 5,led1, myWriteAPIKey); led_1 = ThingSpeak.readIntField(myChannelNumber, 5, myReadAPIKey); // Here is the code for changing the state of LEDs using ThingSpeak. We have already shown above the procedure to change the state of the LED. Led_1 stores the last state of led from the ThingSpeak using the function ThingSpeak.readIntField which takes channel number, respective field number and read API key. If the state of some led is “1” then we turn on the respective led and if the state of some led is “0” we turn off the respective led.// if(led_1==1){digitalWrite(led1,HIGH);} else{digitalWrite(led1,LOW);} }
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ThingSpeak.h>
+
+const char* ssid = "Beast Gogeta"; // Replace with your Wi-Fi SSID
+const char* password = "instagram"; // Replace with your Wi-Fi password
+
+WiFiClient client;
+
+unsigned long myChannelNumber = 2285389; // ThingSpeak channel number
+const char * myWriteAPIKey = "XCZL7HQUFCL9FRDR"; // ThingSpeak write API key
+const char * myReadAPIKey = "LJ24LIGM1ARTNVPL"; // ThingSpeak read API key
+
+int led1 = D3; // GPIO pin for LED
+
+void setup() {
+    Serial.begin(9600); // Initialize serial communication
+    pinMode(led1, OUTPUT); // Set LED pin as output
+    WiFi.begin(ssid, password); // Connect to Wi-Fi network
+    ThingSpeak.begin(client); // Initialize ThingSpeak client
+}
+
+void loop() {
+    int s1 = digitalRead(D7); // Read digital value from IR sensor
+    if (s1 == 0) {
+        digitalWrite(led1, LOW); // Turn off LED if sensor detects no motion
+    } else {
+        digitalWrite(led1, HIGH); // Turn on LED if sensor detects motion
+    }
+
+    // Upload sensor data to ThingSpeak
+    ThingSpeak.writeField(myChannelNumber, 2, s1, myWriteAPIKey); // Upload IR sensor data
+    ThingSpeak.writeField(myChannelNumber, 5, led1, myWriteAPIKey); // Upload LED state
+
+    // Read LED state from ThingSpeak and control LED accordingly
+    int led_1 = ThingSpeak.readIntField(myChannelNumber, 5, myReadAPIKey);
+    if (led_1 == 1) {
+        digitalWrite(led1, HIGH); // Turn on LED if commanded by ThingSpeak
+    } else {
+        digitalWrite(led1, LOW); // Turn off LED if commanded by ThingSpeak
+    }
+}
